@@ -1,4 +1,4 @@
-package com.alura.modelo;
+package com.alura.foro.api.domain.topico;
 
 public enum StatusTopico {
 	

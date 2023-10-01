@@ -1,23 +1,57 @@
-package com.alura.modelo;
+package com.alura.foro.api.domain.topico;
+
+import com.alura.foro.api.domain.curso.Curso;
+import com.alura.foro.api.domain.respuesta.Respuesta;
+import com.alura.foro.api.domain.usuario.Usuario;
+import jakarta.persistence.*;
+import jdk.jfr.Enabled;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Table(name = "topicos")
+@Entity(name = "Topico")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Topico {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String titulo;
 	private String mensaje;
+
+	@Column(name = "fecha_creacion")
 	private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+	@Column(name = "status_topico")
+	@Enumerated(EnumType.STRING)
 	private StatusTopico status = StatusTopico.NO_RESPONDIDO;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "autor_id")
 	private Usuario autor;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "curso_id")
 	private Curso curso;
+
+	@Column(name = "motivo_cancelar")
+	@Enumerated(EnumType.STRING)
+	private MotivoCancelarTopico motivoCancelar;
+
+	@OneToMany
 	private List<Respuesta> respuestas = new ArrayList<>();
 
-	public Topico(String titulo, String mensaje, Curso curso) {
+	public Topico(String titulo, String mensaje, Usuario autor, Curso curso) {
 		this.titulo = titulo;
 		this.mensaje = mensaje;
+		this.fechaCreacion = LocalDateTime.now();
+		this.status = StatusTopico.NO_RESPONDIDO;
+		this.autor = autor;
 		this.curso = curso;
 	}
 
@@ -108,6 +142,19 @@ public class Topico {
 
 	public void setRespuestas(List<Respuesta> respuestas) {
 		this.respuestas = respuestas;
+	}
+
+	public void actualizarDatos(DatosActualizarTopico datosActualizarTopico) {
+		if (datosActualizarTopico.titulo() != null) {
+			this.titulo = datosActualizarTopico.titulo();
+		}
+		if (datosActualizarTopico.mensaje() != null) {
+			this.mensaje = datosActualizarTopico.mensaje();
+		}
+	}
+
+	public void cancelar(MotivoCancelarTopico motivo) {
+		this.motivoCancelar = motivo;
 	}
 
 }
